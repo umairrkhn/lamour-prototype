@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lamour — Cinematic Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  :root {
+    --pink: #f496b0;
+    --pink-soft: #ffc8d6;
+    --ink: #000000;
+    --paper: #ffffff;
+    --ash: #0a0a0a;
+  }
+  html, body { background: #000; color: #fff; }
+  body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .font-serif { font-family: 'Fraunces', 'Times New Roman', serif; font-optical-sizing: auto; font-variation-settings: 'SOFT' 30, 'WONK' 0; }
+  .font-display { font-family: 'Fraunces', 'Times New Roman', serif; font-weight: 700; letter-spacing: -0.035em; font-variation-settings: 'SOFT' 20, 'WONK' 0; }
+  .font-sub { font-family: 'Inter', system-ui, sans-serif; font-weight: 300; letter-spacing: 0.28em; text-transform: uppercase; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  ::selection { background: var(--pink); color: #000; }
+
+  /* Gradient mesh bg */
+  .mesh-hero {
+    background:
+      radial-gradient(60% 50% at 20% 25%, rgba(244,150,176,0.35), transparent 60%),
+      radial-gradient(40% 40% at 85% 75%, rgba(244,150,176,0.25), transparent 60%),
+      radial-gradient(35% 45% at 65% 20%, rgba(255,200,214,0.18), transparent 65%),
+      radial-gradient(50% 50% at 50% 110%, rgba(244,150,176,0.22), transparent 65%),
+      linear-gradient(180deg, #030303 0%, #000 60%, #000 100%);
+  }
+
+  /* Noise overlay for filmic quality */
+  .grain::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.35 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.06; mix-blend-mode: overlay;
+  }
+
+  /* Glass */
+  .glass {
+    background: rgba(12,12,12,0.55);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .glass-strong {
+    background: rgba(20,20,20,0.72);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .glass-pink {
+    background: linear-gradient(135deg, rgba(244,150,176,0.14), rgba(244,150,176,0.04));
+    backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(244,150,176,0.25);
+  }
+
+  /* Reveal animation */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: 120ms; }
+  .reveal-delay-2 { transition-delay: 240ms; }
+  .reveal-delay-3 { transition-delay: 360ms; }
+
+  /* Hero title intro */
+  @keyframes heroIn {
+    0% { opacity: 0; transform: scale(0.94); letter-spacing: 0.04em; filter: blur(14px); }
+    100% { opacity: 1; transform: scale(1); letter-spacing: -0.03em; filter: blur(0); }
+  }
+  .hero-title { animation: heroIn 1.6s cubic-bezier(.2,.7,.2,1) both; }
+  .hero-sub { animation: heroIn 1.4s .5s cubic-bezier(.2,.7,.2,1) both; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(244,150,176,0.25) 40%, rgba(255,255,255,0.5) 50%, rgba(244,150,176,0.25) 60%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2.4s linear infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Product placeholder textures */
+  .prod-bg-1 { background:
+      radial-gradient(circle at 30% 20%, rgba(244,150,176,0.55), transparent 55%),
+      radial-gradient(circle at 70% 80%, rgba(0,0,0,0.6), transparent 60%),
+      linear-gradient(135deg, #1a1416 0%, #2a1a1f 50%, #0a0607 100%); }
+  .prod-bg-2 { background:
+      radial-gradient(circle at 80% 10%, rgba(244,150,176,0.4), transparent 55%),
+      linear-gradient(180deg, #0a0a0a 0%, #1a0e12 100%); }
+  .prod-bg-3 { background:
+      radial-gradient(circle at 20% 80%, rgba(244,150,176,0.5), transparent 60%),
+      linear-gradient(135deg, #0a0a0a, #000); }
+  .prod-bg-4 { background:
+      conic-gradient(from 45deg at 50% 50%, #1a1014, #000, #2a1a1f, #000, #1a1014); }
+  .prod-bg-5 { background:
+      radial-gradient(circle at 50% 30%, rgba(244,150,176,0.6), transparent 55%),
+      linear-gradient(0deg, #000, #1a0e12); }
+  .prod-bg-6 { background:
+      radial-gradient(ellipse at 50% 50%, rgba(244,150,176,0.35), transparent 55%),
+      linear-gradient(135deg, #000, #0a0a0a); }
+
+  /* Diagonal stripes placeholder */
+  .stripes {
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 14px);
+  }
+
+  /* Magnetic button base */
+  .magnetic { transition: transform 0.25s cubic-bezier(.2,.7,.2,1); }
+
+  /* Scrollbar hide */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+
+  /* Thin divider */
+  .hair { height:1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent); }
+
+  /* Oversized watermark */
+  .watermark {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.82;
+    background: linear-gradient(180deg, rgba(244,150,176,0.14) 0%, rgba(244,150,176,0.02) 70%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Pulsing ring for scan */
+  @keyframes pulseRing {
+    0% { transform: scale(0.7); opacity: 0.8; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  .pulse-ring { animation: pulseRing 2s cubic-bezier(.2,.7,.2,1) infinite; }
+  .pulse-ring-2 { animation-delay: 0.6s; }
+  .pulse-ring-3 { animation-delay: 1.2s; }
+
+  @keyframes scanLine {
+    0%, 100% { transform: translateY(-40%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(140%); opacity: 0; }
+  }
+  .scan-line { animation: scanLine 2.2s linear infinite; }
+
+  /* Floating */
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-14px) rotate(0.5deg); }
+  }
+  .float { animation: float 7s ease-in-out infinite; }
+
+  /* Custom cursor-ish hover glow for bestseller cards */
+  .glow-pink { box-shadow: 0 0 0 1px rgba(244,150,176,0.35), 0 30px 80px -20px rgba(244,150,176,0.35), 0 10px 30px -10px rgba(0,0,0,0.8); }
+
+  /* Marquee */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track { animation: marquee 40s linear infinite; }
+
+  /* Hero parallax orbs */
+  .orb { position: absolute; border-radius: 9999px; filter: blur(60px); opacity: 0.7; pointer-events: none; }
+
+  /* Smart match progress */
+  .dot { width:6px;height:6px;border-radius:9999px;background:rgba(255,255,255,0.2); }
+  .dot.on { background: var(--pink); box-shadow: 0 0 10px rgba(244,150,176,0.8); }
+
+  input, button, select, textarea { font-family: inherit; }
+
+  /* ----- Custom cursor ----- */
+  @media (hover: hover) and (pointer: fine) {
+    html, body { cursor: none; }
+    a, button, input, textarea, select, [data-hover] { cursor: none; }
+    .cursor-dot, .cursor-ring {
+      position: fixed; top:0; left:0; pointer-events:none; z-index: 9999;
+      transform: translate3d(-100px,-100px,0);
+      will-change: transform, width, height, background, border-color, opacity;
+    }
+    .cursor-dot {
+      width: 6px; height: 6px; border-radius: 9999px;
+      background: #fff; mix-blend-mode: difference;
+      transition: width .18s ease, height .18s ease, background .2s ease, opacity .2s ease;
+    }
+    .cursor-ring {
+      width: 34px; height: 34px; border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,0.35);
+      transition: width .28s cubic-bezier(.2,.7,.2,1), height .28s cubic-bezier(.2,.7,.2,1),
+                  background .25s ease, border-color .25s ease, opacity .25s ease,
+                  backdrop-filter .25s ease;
+      margin-left: -17px; margin-top: -17px;
+      backdrop-filter: blur(0px);
+    }
+    /* HOVER STATE — small pink disc */
+    .cursor-hover .cursor-dot { opacity: 0; }
+    .cursor-hover .cursor-ring {
+      width: 40px; height: 40px; margin-left:-20px; margin-top:-20px;
+      background: rgba(244,150,176,0.55);
+      border-color: rgba(244,150,176,0);
+      backdrop-filter: blur(1px);
+      mix-blend-mode: normal;
+    }
+    .cursor-press .cursor-ring { transform: translate3d(var(--cx,0px), var(--cy,0px), 0) scale(0.82); }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .cursor-dot, .cursor-ring { display: none !important; }
+  }
+
+  /* ----- Mobile narrative stacking ----- */
+  .narrative-bg-mobile {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    .narrative-visual-desktop { display: none; }
+    .narrative-bg-mobile {
+      display: block;
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+    .narrative-text-col { position: relative; z-index: 1; }
+  }
+</style>
+</head>
+<body class="bg-black text-white antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
